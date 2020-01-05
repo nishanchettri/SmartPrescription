@@ -23,15 +23,15 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);   //object
 
 /************************* WiFi Access Point *********************************/
 
-#define WLAN_SSID       "nissan"
-#define WLAN_PASS       "password"
+#define WLAN_SSID       "nissan" // enter your wifi ssid
+#define WLAN_PASS       "password" // enter your wifi password
 
 /************************* Adafruit.io Setup *********************************/
 
 #define AIO_SERVER      "io.adafruit.com"
-#define AIO_SERVERPORT  1883                   // use 8883 for SSL
-#define AIO_USERNAME    "nishanchettri"
-#define AIO_KEY         "ac6926a368534677bf50379ba383e6d5"
+#define AIO_SERVERPORT  1883                   
+#define AIO_USERNAME    "user" //enter your username of adafruit.io
+#define AIO_KEY         "ac6926a368534677bf50379ba383e6d5" //enter your unique api key
 
 /************ Global State (you don't need to change this!) ******************/
 
@@ -45,12 +45,12 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 
 /****************************** Feeds ***************************************/
 
-// Setup a feed called 'photocell' for publishing.
+// Setup a feed called 'see' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-Adafruit_MQTT_Publish tx = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/see");
+Adafruit_MQTT_Publish tx = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/see"); // sending user information to adafruit.io
 
-// Setup a feed called 'onoff' for subscribing to changes.
-Adafruit_MQTT_Subscribe rx = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/send");
+// Setup a feed called 'send' for subscribing to changes.
+Adafruit_MQTT_Subscribe rx = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/send"); //from adfruit.io to lcd display
 
 /*************************** Sketch Code ************************************/
 
@@ -60,7 +60,7 @@ void MQTT_connect();
 
 
 /************OLED****************/
-#define oledReset LED_BUILTIN
+#define oledReset 13
 Adafruit_SSD1306 display(oledReset);
 
 #if (SSD1306_LCDHEIGHT != 64)
@@ -128,23 +128,23 @@ void loop() {
   //Show UID on serial monitor
   Serial.println();
   Serial.print(" UID tag :");
-  String content= "";
+  String id= "";
   byte letter;
   for (byte i = 0; i < mfrc522.uid.size; i++) 
   {
      Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
      Serial.print(mfrc522.uid.uidByte[i], HEX);
-     content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
-     content.concat(String(mfrc522.uid.uidByte[i], HEX));
+     id.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
+     id.concat(String(mfrc522.uid.uidByte[i], HEX));
   }
-  content.toUpperCase();
- if (content.substring(1) == "80 27 79 89") //change UID of the card that you want to give access
+  id.toUpperCase();
+ if (id== "80 27 79 89") //change UID of the card that you want to give access
   {
     tx.publish((char *)rx.lastread);
     Serial.println((char *)rx.lastread);
     display.clearDisplay();
     display.setCursor(0,10);
-    display.println("hhh");
+    display.println((char *)rx.lastread);
     display.display();
   }
   }
